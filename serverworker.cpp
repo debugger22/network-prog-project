@@ -1,7 +1,15 @@
 #include <iostream>
 #include <string>
-#include <cstring>
+#include <sstream>
 #include "serverworker.h"
+
+namespace patch{
+    template < typename T > std::string to_string( const T& n ){
+        std::ostringstream stm ;
+        stm << n ;
+        return stm.str() ;
+    }
+}
 
 using namespace std;
 
@@ -10,6 +18,8 @@ ServerWorker::ServerWorker(QObject *parent) :
 }
 
 void ServerWorker::doWork(){
+    connect(this, SIGNAL(fileDownloadProgressChangedSignal(int)),
+            parent, SLOT(fileDownloadProgressChanged(int)));
     connect(this, SIGNAL(fileReadSuccessfullySignal(std::string)),
             parent, SLOT(fileReadSuccessfully(std::string)), Qt::DirectConnection);
     connect(this, SIGNAL(messageReadSuccessfullySignal(std::string)),
@@ -41,10 +51,10 @@ void ServerWorker::doWork(){
         int size = 0;
         newsockfd = accept(sockfd, (struct sockaddr *)&clisock_addr, (socklen_t *)&clilen);
         std::string client_ip = "";
-        client_ip += ((int)(clisock_addr.sin_addr.s_addr&0xFF)) + ".";
-        client_ip += std::to_string((int)((clisock_addr.sin_addr.s_addr&0xFF)>>8)) + ".";
-        client_ip += std::to_string((int)((clisock_addr.sin_addr.s_addr&0xFF0000)>>16)) + ".";
-        client_ip += std::to_string((int)((clisock_addr.sin_addr.s_addr&0xFF000000)>>24));
+        client_ip += patch::to_string((int)(clisock_addr.sin_addr.s_addr&0xFF)) + ".";
+        client_ip += patch::to_string((int)((clisock_addr.sin_addr.s_addr&0xFF)>>8)) + ".";
+        client_ip += patch::to_string((int)((clisock_addr.sin_addr.s_addr&0xFF0000)>>16)) + ".";
+        client_ip += patch::to_string((int)((clisock_addr.sin_addr.s_addr&0xFF000000)>>24));
         emit clientConnectedSuccessfullySignal(client_ip);
         if(newsockfd >= 0){
             int data_type;
@@ -61,7 +71,7 @@ void ServerWorker::doWork(){
                     fileN[ch] = filename[ch];
                 }
                 fileN[ch]='\0';
-
+                emit fileReadSuccessfullySignal("Downloading " + std::string(fileN));
                 filelength = strlen(fileN);
                 FILE * fpIn = fopen(fileN, "w");
                 int progress = 0;
@@ -69,19 +79,29 @@ void ServerWorker::doWork(){
                 char buf[BUFFER_SIZE];
                     while(1){
                        ssize_t bytesReceived = recv(newsockfd, buf, sizeof(buf), 0);
-                       if (bytesReceived < 0) perror("recv");  // network error?
+                       if(bytesReceived == 2896){
+                           //cout << "before ending" << endl;
+                       }
+
                        if (bytesReceived == 0) break;   // sender closed connection, must be end of file
                        progress = progress + (int)bytesReceived;
                        float per = (float)progress/size;
                        per = per * 100;
-                       cout << "Progress " << per << endl;
+                       emit fileDownloadProgressChangedSignal((int)per);
+                       //cout << "Progress " << per << endl;
+                       if (bytesReceived < 0){
+                           cout << "Interface changed" << endl;
+                           perror("recv");  // network error?
+                       }
+
                        if (fwrite(buf, 1, bytesReceived, fpIn) != (size_t) bytesReceived){
                           perror("fwrite");
                           break;
                        }
                     }
                 }
-                emit fileReadSuccessfullySignal(fileN);
+                emit fileReadSuccessfullySignal(std::string(fileN) + " was downloaded successfully!");
+                emit fileDownloadProgressChangedSignal(100);
                 fclose(fpIn);
             }else if(data_type == 1){
                 read(newsockfd, messageBuffer, sizeof(messageBuffer));

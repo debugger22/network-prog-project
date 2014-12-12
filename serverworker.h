@@ -31,6 +31,7 @@ public:
 
 signals:
     void clientConnectedSuccessfullySignal(std::string ip);
+    void fileDownloadProgressChangedSignal(int progress);
     void fileReadSuccessfullySignal(std::string filename);
     void messageReadSuccessfullySignal(std::string message);
 

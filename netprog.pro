@@ -17,12 +17,14 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     server.cpp \
     client.cpp \
-    serverworker.cpp
+    serverworker.cpp \
+    clientworker.cpp
 
 HEADERS  += mainwindow.h \
     server.h \
     client.h \
-    serverworker.h
+    serverworker.h \
+    clientworker.h
 
 FORMS    += mainwindow.ui \
     client.ui \

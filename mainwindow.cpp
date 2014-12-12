@@ -18,7 +18,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_cmdLaunchServer_pressed()
+void MainWindow::on_cmdLaunchServer_clicked()
 {
 
     if(ui->txtServeStartPort->text().length() == 0){
@@ -32,10 +32,11 @@ void MainWindow::on_cmdLaunchServer_pressed()
     serverWindow->setPortNo(ui->txtServeStartPort->text().toInt());
     serverWindow->startServer();
     serverWindow->show();
+    this->hide();
     std::cout << "Server started successfully!" << std::endl;
 }
 
-void MainWindow::on_cmdLaunchClient_pressed()
+void MainWindow::on_cmdLaunchClient_clicked()
 {
     if(ui->txtServerConnectPort->text().length() == 0 || ui->txtServerIP->text().length() == 0){
         QMessageBox * box = new QMessageBox;
@@ -45,6 +46,9 @@ void MainWindow::on_cmdLaunchClient_pressed()
         return;
     }
     Client *clientWindow = new Client;
+    clientWindow->setPortNo(ui->txtServerConnectPort->text().toInt());
+    clientWindow->setServerIp(ui->txtServerIP->text().toStdString());
     clientWindow->show();
-    std::cout << "Client fired up!" << std::endl;
+    this->hide();
+    std::cout << "Client started!" << std::endl;
 }

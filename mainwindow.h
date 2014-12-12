@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 
+
 namespace Ui {
 class MainWindow;
 }
@@ -16,9 +17,9 @@ public:
     ~MainWindow();
     
 private slots:
-    void on_cmdLaunchServer_pressed();  // Launch server button click slot
+    void on_cmdLaunchServer_clicked();  // Launch server button click slot
 
-    void on_cmdLaunchClient_pressed();  // Launch client button click slot
+    void on_cmdLaunchClient_clicked();  // Launch client button click slot
 
 private:
     Ui::MainWindow *ui;

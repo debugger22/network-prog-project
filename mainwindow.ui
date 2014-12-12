@@ -82,6 +82,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QLineEdit" name="lineEdit">
+         <property name="placeholderText">
+          <string>WiFi IP</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QLineEdit" name="txtServerConnectPort">
          <property name="placeholderText">
           <string>Server Port no.</string>

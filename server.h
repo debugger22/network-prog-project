@@ -46,6 +46,7 @@ private:
 
  public slots:
     void clientConnectedSuccessfully(std::string ip);
+    void fileDownloadProgressChanged(int progress);
     void fileReadSuccessfully(std::string filename);
     void messageReadSuccessfully(std::string message);
 
